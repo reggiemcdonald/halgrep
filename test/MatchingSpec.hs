@@ -46,7 +46,7 @@ spec = do
       newR 2 `shouldBe` [-2,-2,-2]
 
   describe "alphabetMask" $
-    it "should generate a bit mask for each of the characters in the pattern" $
+    it "should generate a bit mask for the pattern for all possible characters in the input" $
       IntMap.toList (newPatternMask "mississippi" "mis") `shouldMatchList` 
         [
           (105,-3),
@@ -59,14 +59,14 @@ spec = do
     -- Initialize test data
     let wildStrings = 
           [
-            -- https://en.wikipedia.org/wiki/Alpaca
+            -- Following line from: https://en.wikipedia.org/wiki/Alpaca
             "Alpacas are kept in herds that graze on the level heights of the Andes of Southern Peru, Western Bolivia, Ecuador, " 
             ++ "and Northern Chile at an altitude of 3,500 to 5,000 metres (11,000 to 16,000 feet) above sea level.",
             
-            -- https://en.wikipedia.org/wiki/Pika
+            -- Following line from: https://en.wikipedia.org/wiki/Pika
             "Pikas prefer rocky slopes and graze on a range of plants, mostly grasses, flowers, and young stems.",
 
-            -- https://en.wikipedia.org/wiki/Anteater
+            -- Following line from: https://en.wikipedia.org/wiki/Anteater
             "Extant species are the giant anteater Myrmecophaga tridactyla, about 1.8 m (5 ft 11 in) long including the tail"
           ]
     -- End of test data
@@ -125,3 +125,9 @@ spec = do
           Match
       -}
       findMatchesFuzzy wildStrings 0 LowFuzzy fuzzyPattern `shouldContain` [Match (wildStrings !! 1) "ikas" 1]
+
+    it "should be able to fuzzy search bigger text files" $ do
+      f <- readFile "test/random_text.txt"
+      let l = lines f
+      findMatchesFuzzy l 0 LowFuzzy "pellantasque" `shouldBe` []
+      findMatchesFuzzy l 0 LowFuzzy "pellantesque" `shouldNotBe` []
