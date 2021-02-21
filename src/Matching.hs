@@ -61,7 +61,7 @@ findMatchesFuzzy lines startingLineNum fuzzyLevel fuzzyStr = foldr (\(text, idx)
           m = length fuzzyStr
 
 {-
-  The code for this algorithm was adopted from the C version at https://en.wikipedia.org/wiki/Bitap_algorithm
+  The code and all helpers for this algorithm were adopted from the C version at https://en.wikipedia.org/wiki/Bitap_algorithm
 
   The bitap algorithm is an approximate string matching algorithm that efficiently 
   identifies approximate substring matches in a given text.
