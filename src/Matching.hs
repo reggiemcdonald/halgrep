@@ -40,9 +40,9 @@ editDistance MediumFuzzy = 3
 editDistance HighFuzzy = 5
 
 instance Show Fuzziness where
-  show LowFuzzy = "Fuzzy: Low(3)"
-  show MediumFuzzy = "Fuzzy: Med(5)"
-  show HighFuzzy = "Fuzzy: High(7)"
+  show LowFuzzy = "Fuzzy: Low(" ++ show (editDistance LowFuzzy) ++ ")"
+  show MediumFuzzy = "Fuzzy: Med(" ++ show (editDistance MediumFuzzy) ++ ")"
+  show HighFuzzy = "Fuzzy: High(" ++ show (editDistance HighFuzzy) ++ ")"
 
 -- | Returns a list of matches found in the given list of lines from the file read.
 findMatches :: [String] -> Int -> String -> [Match]
