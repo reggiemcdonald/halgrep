@@ -40,10 +40,6 @@ spec = do
           Match (multipleString !! 1) "string" 11, 
           Match (multipleString !! 2) "string" 12
         ]
-  
-  describe "makeAlphabet" $
-    it "should remove duplicate characters" $
-      makeAlphabet "mississippi" `shouldMatchList` "misp"
 
   describe "newR" $
     it "should create a new [Int] with k+1 entries" $
@@ -51,7 +47,7 @@ spec = do
 
   describe "alphabetMask" $
     it "should generate a bit mask for each of the characters in the pattern" $
-      IntMap.toList (newPatternMask (makeAlphabet "mississippi") "mis") `shouldMatchList` 
+      IntMap.toList (newPatternMask "mississippi" "mis") `shouldMatchList` 
         [
           (105,-3),
           (109,-2),

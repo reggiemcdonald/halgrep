@@ -5,7 +5,6 @@ module Matching (
   findMatchesFuzzy,
 
   -- Visible for testing
-  makeAlphabet,
   newPatternMask,
   newR,
   bitap
@@ -42,7 +41,7 @@ editDistance MediumFuzzy = 3
 editDistance HighFuzzy = 5
 
 instance Show Fuzziness where
-  show LowFuzzy = "Fuzzy: Low (3)"
+  show LowFuzzy = "Fuzzy: Low(3)"
   show MediumFuzzy = "Fuzzy: Med(5)"
   show HighFuzzy = "Fuzzy: High(7)"
 
@@ -54,11 +53,12 @@ findMatches lines startingLineNum regex = foldr findMatches' [] (zip lines [star
 -- | Matches the given string to the lines read from the file according to the fuzziness level specified.
 findMatchesFuzzy :: [String] -> Int -> Fuzziness -> String -> [Match]
 findMatchesFuzzy lines startingLineNum fuzzyLevel fuzzyStr = foldr (\(text, idx) y -> 
-  findMatchesFuzzy' text idx (bitap text k (length fuzzyStr) (newPatternMask text fuzzyStr) (newR k)) y) 
+  findMatchesFuzzy' text idx (bitap text k m (newPatternMask text fuzzyStr) (newR k)) y) 
   [] (zip lines [startingLineNum .. (startingLineNum + length lines)])
     where findMatchesFuzzy' _ _ Nothing y = y
           findMatchesFuzzy' text idx (Just str) y = Match text str idx:y
           k = editDistance fuzzyLevel
+          m = length fuzzyStr
 
 {-
   The code for this algorithm was adopted from the C version at https://en.wikipedia.org/wiki/Bitap_algorithm
@@ -88,10 +88,6 @@ bitap text k m patternMask r = bitap' text k m patternMask r 0
   Accessory functions for the bitap algorithm.
 -}
 
--- | Returns the alphabet from the given text.
-makeAlphabet :: String -> String
-makeAlphabet = foldl (\y x -> if x `elem` y then y else x:y) []
-
 newPatternMask :: String -> String -> IntMap Int64
 newPatternMask abet pattern = newPatternMask' (zip pattern [0..(length pattern)]) initd
   --    initialize the IntMap with ~0 for each letter of the alphabet
@@ -100,8 +96,7 @@ newPatternMask abet pattern = newPatternMask' (zip pattern [0..(length pattern)]
         newPatternMask' [] mapping = mapping
   --    otherwise, compute the pattern mask
         newPatternMask' ((letter, idx):t) mapping = newPatternMask' t (IntMap.insert (ord letter) 
-          (IntMap.findWithDefault 0 (ord letter) mapping .&. complement (1 `shiftL` idx)) mapping)
-
+          (IntMap.findWithDefault 0 (ord letter) mapping .&. complement ((1 :: Int64) `shiftL` idx)) mapping)
 
 -- | Returns a new IntMap initialized for R in the bitap algorithm.
 newR :: Int -> [Int64]
