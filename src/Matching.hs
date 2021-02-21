@@ -14,7 +14,7 @@ module Matching (
 
 import Text.Regex.TDFA ((=~))
 import Constants ( maxFuzzyPatternLength )
-import Data.Bits
+import Data.Bits ( Bits(shiftL, complement, (.|.), (.&.)) )
 import Data.Char (ord)
 import Data.Int (Int64)
 import Data.IntMap (IntMap)
