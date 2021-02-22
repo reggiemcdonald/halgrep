@@ -1,8 +1,14 @@
 -- | File handling
 
-module File where
+module File (
+  ExFile(..),
+  extractFile,
+  extractFilesInDir,
+  extractFilesRecursive
+            )where
 
 import Control.Exception (catch, IOException)
+import Text.Regex.TDFA ((=~))
 import Control.Monad (forM, filterM)
 import System.IO (hGetContents, IOMode(ReadMode), openFile)
 import System.Posix.Files (getFileStatus, isDirectory)
@@ -22,6 +28,8 @@ data ExFile = ExFile {
   , contents :: [String]
   } deriving Show
 
+dotfileRegEx = "^/?(?:\\w+/)*(\\.\\w+)" :: String
+
 {-|
     @brief Given a filepath it will extract the contents of the file and
     will return them as an array of lines.
@@ -30,8 +38,7 @@ data ExFile = ExFile {
 -}
 extractFile :: FilePath -> IO ExFile
 extractFile filepath = do
-  handle <- openFile filepath ReadMode
-  contents <- hGetContents handle
+  contents <- readFile filepath
   let exfile = ExFile{
         filepath = filepath,
         contents = (lines contents)
@@ -87,7 +94,6 @@ getDirectories filepath = do
    files.
    @param filepath
    @returns list of filepaths
-   TODO ERROR handling
 -}
 getFiles :: FilePath -> IO [FilePath]
 getFiles filepath = do
@@ -96,19 +102,28 @@ getFiles filepath = do
   return files
 
 {-|
+   @brief given a filepath it will return true if its a dotfile
+   @param filepath
+   @returns true
+-}
+isDotFile :: FilePath -> Bool
+isDotFile f = f =~ dotfileRegEx
+
+{-|
    @brief Given a directory it will returns a relative path
    list of its contents.
    @param filepath
+   @throws IOException
    @returns list of relative filepaths
    TODO ERROR handling
 -}
 extractPaths :: FilePath -> IO [[Char]]
 extractPaths filepath = do
-  contents <- catch (listDirectory filepath) (\e -> do
-        -- TODO better error handling
-        putStrLn $ show (e :: IOException)
-        return []
-        )
+  -- contents <- catch (listDirectory filepath) (\e -> do
+  --       putStrLn $ show (e :: IOException)
+  --       return []
+  --       )
+  contents <- listDirectory filepath
   let fullpaths =
         if last filepath == '/' then map (filepath ++) contents
         else map ((filepath ++ "/") ++) contents

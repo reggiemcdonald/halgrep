@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d4d2c134d2360385eeb2053a0fa19d6e51e99d06b2faef91b86a18ca747a1b7d
+-- hash: b8777f047ceb4304b5af997edd05c68a4e98e02013be88f8019b0a690c94e9dd
 
 name:           halgrep
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
   build-depends:
       base >=4.7 && <5
     , directory
+    , regex-tdfa
     , unix
   default-language: Haskell2010
 
@@ -47,6 +48,7 @@ executable halgrep-exe
       base >=4.7 && <5
     , directory
     , halgrep
+    , regex-tdfa
     , unix
   default-language: Haskell2010
 
@@ -62,5 +64,6 @@ test-suite halgrep-test
       base >=4.7 && <5
     , directory
     , halgrep
+    , regex-tdfa
     , unix
   default-language: Haskell2010
