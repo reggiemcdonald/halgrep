@@ -28,7 +28,7 @@ data ExFile = ExFile {
   , contents :: [String]
   } deriving Show
 
-dotfileRegEx = "^/?(?:\\w+/)*(\\.\\w+)" :: String
+dotfileRegEx = "^\/?(?:\w+\/)*(\.\w+)" :: String
 
 {-|
     @brief Given a filepath it will extract the contents of the file and
