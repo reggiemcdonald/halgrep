@@ -1,8 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.3.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: d4d2c134d2360385eeb2053a0fa19d6e51e99d06b2faef91b86a18ca747a1b7d
 
 name:           halgrep
 version:        0.1.0.0
@@ -22,6 +24,7 @@ source-repository head
 
 library
   exposed-modules:
+      File
       Lib
   other-modules:
       Paths_halgrep
@@ -29,6 +32,8 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , directory
+    , unix
   default-language: Haskell2010
 
 executable halgrep-exe
@@ -40,7 +45,9 @@ executable halgrep-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , directory
     , halgrep
+    , unix
   default-language: Haskell2010
 
 test-suite halgrep-test
@@ -53,5 +60,7 @@ test-suite halgrep-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , directory
     , halgrep
+    , unix
   default-language: Haskell2010
