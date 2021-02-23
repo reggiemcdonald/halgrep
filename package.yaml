@@ -20,6 +20,9 @@ description:         Full-text search put to its fullest possible use
 
 dependencies:
 - base >= 4.7 && < 5
+- regex-pcre
+- directory
+- unix
 
 library:
   source-dirs: src
