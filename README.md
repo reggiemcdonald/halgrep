@@ -7,6 +7,16 @@ stack build
 stack run
 ```
 
+### To run interactive:
+```bash
+stack ghci
+```
+
+### To run unit tests
+```bash
+stack test
+```
+
 ### Man Page:
 HALGREP(1) Version 0.1 | CPSC312 Project 1 | HALGREP(1)
 
