@@ -1,0 +1,81 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.3.
+--
+-- see: https://github.com/sol/hpack
+
+name:           halgrep
+version:        0.1.0.0
+description:    Full-text search put to its fullest possible use
+homepage:       https://github.com/reggiemcdonald/halgrep#readme
+bug-reports:    https://github.com/reggiemcdonald/halgrep/issues
+author:         Kyle Da Silva, Julian Mentasti, Reg McDonald
+maintainer:     Kyle Da Silva, Julian Mentasti, Reg McDonald
+license:        MIT
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/reggiemcdonald/halgrep
+
+library
+  exposed-modules:
+      File
+      Lib
+      Matching
+  other-modules:
+      Paths_halgrep
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , bits
+    , containers
+    , directory
+    , regex-pcre
+    , regex-tdfa
+    , unix
+  default-language: Haskell2010
+
+executable halgrep-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_halgrep
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bits
+    , containers
+    , directory
+    , halgrep
+    , regex-pcre
+    , regex-tdfa
+    , unix
+  default-language: Haskell2010
+
+test-suite halgrep-test
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      MatchingSpec
+      Spec
+      Paths_halgrep
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bits
+    , containers
+    , directory
+    , halgrep
+    , hspec >=2.0.0
+    , hspec-expectations-lifted
+    , regex-pcre
+    , regex-tdfa
+    , unix
+  default-language: Haskell2010
