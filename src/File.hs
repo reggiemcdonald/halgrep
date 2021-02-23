@@ -8,9 +8,9 @@ module File (
             )where
 
 import Control.Exception (catch, IOException)
-import Text.Regex.TDFA ((=~))
+import Text.Regex.PCRE ((=~))
 import Control.Monad (forM, filterM)
-import System.IO (hGetContents, IOMode(ReadMode), openFile)
+import System.IO (hGetContents, IOMode(ReadMode), openFile, latin1, hSetEncoding)
 import System.Posix.Files (getFileStatus, isDirectory)
 import System.Directory (doesDirectoryExist, doesFileExist, listDirectory)
 
@@ -28,17 +28,20 @@ data ExFile = ExFile {
   , contents :: [String]
   } deriving Show
 
-dotfileRegEx = "^\/?(?:\w+\/)*(\.\w+)" :: String
+dotfileRegEx = "^\\/?(?:\\w+\\/)*(\\.\\w+)" :: String
 
 {-|
     @brief Given a filepath it will extract the contents of the file and
     will return them as an array of lines.
+    @throws IOException if file does not exist
     @param filepath String
     @returns array of lines from the file
 -}
-extractFile :: FilePath -> IO ExFile
+extractFile :: FilePath -> IO ExFile -- or False
 extractFile filepath = do
-  contents <- readFile filepath
+  handler <- openFile filepath ReadMode
+  hSetEncoding handler latin1
+  contents <- hGetContents handler
   let exfile = ExFile{
         filepath = filepath,
         contents = (lines contents)
@@ -104,7 +107,7 @@ getFiles filepath = do
 {-|
    @brief given a filepath it will return true if its a dotfile
    @param filepath
-   @returns true
+   @returns boolean
 -}
 isDotFile :: FilePath -> Bool
 isDotFile f = f =~ dotfileRegEx
@@ -123,7 +126,8 @@ extractPaths filepath = do
   --       putStrLn $ show (e :: IOException)
   --       return []
   --       )
-  contents <- listDirectory filepath
+  files <- listDirectory filepath
+  let contents = filter (\f -> not (isDotFile f)) files
   let fullpaths =
         if last filepath == '/' then map (filepath ++) contents
         else map ((filepath ++ "/") ++) contents
