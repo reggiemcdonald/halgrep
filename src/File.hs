@@ -84,7 +84,6 @@ extractFilesRecursive path = do
    subdirectories.
    @param filepath
    @returns list of directories
-   TODO ERROR handling
 -}
 getDirectories :: FilePath -> IO [FilePath]
 getDirectories filepath = do
@@ -118,7 +117,6 @@ isDotFile f = f =~ dotfileRegEx
    @param filepath
    @throws IOException
    @returns list of relative filepaths
-   TODO ERROR handling
 -}
 extractPaths :: FilePath -> IO [[Char]]
 extractPaths filepath = do
