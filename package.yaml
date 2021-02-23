@@ -21,6 +21,12 @@ description:         Full-text search put to its fullest possible use
 dependencies:
 - base >= 4.7 && < 5
 - optparse-applicative
+- regex-pcre
+- directory
+- unix
+- regex-tdfa
+- bits
+- containers
 
 library:
   source-dirs: src
@@ -38,7 +44,7 @@ executables:
 
 tests:
   halgrep-test:
-    main:                Spec.hs
+    main:                Main.hs
     source-dirs:         test
     ghc-options:
     - -threaded
@@ -46,3 +52,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - halgrep
+    - hspec >= 2.0.0
+    - hspec-expectations-lifted
