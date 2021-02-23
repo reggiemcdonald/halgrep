@@ -3,7 +3,6 @@
 module File (
   ExFile(..),
   extractFile,
-  extractFilesInDir,
   extractFilesRecursive
             )where
 
@@ -31,14 +30,31 @@ data ExFile = ExFile {
 dotfileRegEx = "^\\/?(?:\\w+\\/)*(\\.\\w+)" :: String
 
 {-|
+    @brief Given a filepath it will extract the contents of
+    the file, Given a path to a direcotry it will return the
+    contents of all the files in the directory.
+    @throws IOException if file/dir does not exist
+    @param filepath String
+    @returns array of lines from the file
+-}
+extractFile :: FilePath -> IO [ExFile]
+extractFile filepath = do
+    res <- doesDirectoryExist filepath
+    if res
+      then  _extractFilesInDir filepath
+      else  do
+        ret <-_extractFile filepath
+        return [ret]
+
+{-|
     @brief Given a filepath it will extract the contents of the file and
     will return them as an array of lines.
     @throws IOException if file does not exist
     @param filepath String
     @returns array of lines from the file
 -}
-extractFile :: FilePath -> IO ExFile -- or False
-extractFile filepath = do
+_extractFile :: FilePath -> IO ExFile
+_extractFile filepath = do
   handler <- openFile filepath ReadMode
   hSetEncoding handler latin1
   contents <- hGetContents handler
@@ -54,10 +70,10 @@ extractFile filepath = do
    @param filepath
    @returns exfiles from the directory
 -}
-extractFilesInDir :: FilePath -> IO [ExFile]
-extractFilesInDir path = do
-  files <- getFiles path
-  exfiles <- mapM extractFile files
+_extractFilesInDir :: FilePath -> IO [ExFile]
+_extractFilesInDir path = do
+  files <- _getFiles path
+  exfiles <- mapM _extractFile files
   return exfiles
 
 {-|
@@ -68,11 +84,11 @@ extractFilesInDir path = do
 -}
 extractFilesRecursive :: FilePath -> IO [ExFile]
 extractFilesRecursive path = do
-  exfiles <- extractFilesInDir path
+  exfiles <- _extractFilesInDir path
   -- putStrLn $ show exfiles
-  dirs <- getDirectories path
+  dirs <- _getDirectories path
   files <- forM dirs $ \d -> do
-    subExFiles <- extractFilesInDir d
+    subExFiles <- _extractFilesInDir d
     s <- getFileStatus d
     if isDirectory s
       then extractFilesRecursive d
@@ -85,21 +101,21 @@ extractFilesRecursive path = do
    @param filepath
    @returns list of directories
 -}
-getDirectories :: FilePath -> IO [FilePath]
-getDirectories filepath = do
-  paths <- extractPaths filepath
+_getDirectories :: FilePath -> IO [FilePath]
+_getDirectories filepath = do
+  paths <- _extractPaths filepath
   dirs <- filterM doesDirectoryExist paths
   return dirs
 
 {-|
-   @brief Given a directory it will returns a list of
+   @brief Given a directory it will return a list of
    files.
    @param filepath
    @returns list of filepaths
 -}
-getFiles :: FilePath -> IO [FilePath]
-getFiles filepath = do
-  paths <- extractPaths filepath
+_getFiles :: FilePath -> IO [FilePath]
+_getFiles filepath = do
+  paths <- _extractPaths filepath
   files <- filterM doesFileExist paths
   return files
 
@@ -108,24 +124,24 @@ getFiles filepath = do
    @param filepath
    @returns boolean
 -}
-isDotFile :: FilePath -> Bool
-isDotFile f = f =~ dotfileRegEx
+_isDotFile :: FilePath -> Bool
+_isDotFile f = f =~ dotfileRegEx
 
 {-|
-   @brief Given a directory it will returns a relative path
+   @brief Given a directory it will return a relative path
    list of its contents.
    @param filepath
    @throws IOException
    @returns list of relative filepaths
 -}
-extractPaths :: FilePath -> IO [[Char]]
-extractPaths filepath = do
+_extractPaths :: FilePath -> IO [[Char]]
+_extractPaths filepath = do
   -- contents <- catch (listDirectory filepath) (\e -> do
   --       putStrLn $ show (e :: IOException)
   --       return []
   --       )
   files <- listDirectory filepath
-  let contents = filter (\f -> not (isDotFile f)) files
+  let contents = filter (\f -> not (_isDotFile f)) files
   let fullpaths =
         if last filepath == '/' then map (filepath ++) contents
         else map ((filepath ++ "/") ++) contents
