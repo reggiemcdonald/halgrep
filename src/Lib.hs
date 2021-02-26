@@ -3,17 +3,24 @@ module Lib
     ) where
 
 import Options.Applicative
+import File
+import Matching
 
 someFunc :: IO ()
 someFunc = run =<< execParser appInfo
 
 run :: Command -> IO ()
 run (Command (Opts c fz) (Args p fs)) = do
-  let files = map extractFile fs
-      patt = p
-  putStrLn $ "Files to search: " ++ foldr (\ x y -> x ++ " " ++ y) "" files
+  files <- sequence (map File.extractFile fs)
+  let patt = p
+      fileContents = map (\ (ExFile filepath contents ) -> contents) (concat files)
+      matches = map (\ x -> Matching.findMatches x 0 p) fileContents
+      matchLines = map (\ (Matching.Match m st i) -> m) (concat matches)
+  putStrLn $ "Files to search: " ++ foldr (\ x y -> x ++ " " ++ y) "" fs
   putStrLn $ "Pattern to match on: " ++ patt
   putStrLn $ "Options: Context Lines: " ++ show c ++ " fuzzy level: " ++ fz
+  putStrLn $ "Results: "
+  mapM_ print matchLines
 
 data Opts = Opts
   { optContext :: Int
@@ -69,6 +76,6 @@ appInfo = info (cmd <**> helper)
   <> header "halgrep - a text search utility" )
 
 
-findMatches lines startingLineNum regex = []
-extractFile path = path
-getFiles path = []
+--findMatches lines startingLineNum regex = []
+--extractFile path = path
+-- getFiles path = []
