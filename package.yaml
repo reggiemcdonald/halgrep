@@ -27,6 +27,7 @@ dependencies:
 - regex-tdfa
 - bits
 - containers
+- ansi-terminal
 
 library:
   source-dirs: src
