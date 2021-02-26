@@ -1,10 +1,12 @@
 module Matching (
   Match(..),
   Fuzziness(..),
-  findMatches,
-  findMatchesFuzzy,
+  dispatchMatching,
+  getLineParts,
 
   -- Visible for testing
+  findMatches,
+  findMatchesFuzzy,
   newPatternMask,
   newR,
   bitap
@@ -20,34 +22,44 @@ import qualified Data.IntMap.Strict as IntMap
 
 {-
   Match contains the line that was matched, the matched text,
-  and line number of a regex match.
+  the index of the match, and the line number.
 -}
-data Match = Match String String Int
-  deriving (Show)
-
-instance Eq Match where
-  (Match line1 match1 idx1) == (Match line2 match2 idx2) = (line1 == line2) && (match1 == match2) && (idx1 == idx2)
+data Match = Match String String Int Int
+  deriving (Show, Eq)
 
 {-
   Fuzziness is a enumeration for the edit distances of the fuzzy text search.
 -}
-data Fuzziness = LowFuzzy | MediumFuzzy | HighFuzzy
+data Fuzziness = NoFuzzy | LowFuzzy | MediumFuzzy | HighFuzzy
 
 -- | Returns the edit distance corresponding to the amount fuzziness permitted in the fuzzy text search.
 editDistance :: Fuzziness -> Int
+editDistance NoFuzzy = 0
 editDistance LowFuzzy = 1
-editDistance MediumFuzzy = 3
-editDistance HighFuzzy = 5
+editDistance MediumFuzzy = 2
+editDistance HighFuzzy = 3
 
 instance Show Fuzziness where
+  show NoFuzzy = "Fuzzy: None(" ++ show (editDistance NoFuzzy) ++ ")"
   show LowFuzzy = "Fuzzy: Low(" ++ show (editDistance LowFuzzy) ++ ")"
   show MediumFuzzy = "Fuzzy: Med(" ++ show (editDistance MediumFuzzy) ++ ")"
   show HighFuzzy = "Fuzzy: High(" ++ show (editDistance HighFuzzy) ++ ")"
 
+getLineParts :: Match -> (String, String, String)
+getLineParts (Match line matchedPattern idx _) = (take idx line, matchedPattern, drop (idx + length matchedPattern) line)
+
+-- | Dispatches the correct matching function according to the specified fuzzy level
+dispatchMatching :: [String] -> Int -> Fuzziness -> String -> [Match]
+dispatchMatching lines startLineNum NoFuzzy pattern = findMatches lines startLineNum pattern
+dispatchMatching lines startLineNum fuzziness pattern = findMatchesFuzzy lines startLineNum fuzziness pattern
+
 -- | Returns a list of matches found in the given list of lines from the file read.
 findMatches :: [String] -> Int -> String -> [Match]
 findMatches lines startingLineNum regex = foldr findMatches' [] (zip lines [startingLineNum .. (startingLineNum+length lines)])
-  where findMatches' (str, line) y = if str =~ regex then Match str (str =~ regex) line:y else y
+  where findMatches' (str, line) y = if str =~ regex then newMatchForFindMatch str (str =~ regex) (str =~ regex) line:y else y
+
+newMatchForFindMatch :: String -> String -> (Int,Int) -> Int -> Match
+newMatchForFindMatch line matchedPattern (idx,_) = Match line matchedPattern idx
 
 -- | Matches the given string to the lines read from the file according to the fuzziness level specified.
 findMatchesFuzzy :: [String] -> Int -> Fuzziness -> String -> [Match]
@@ -55,7 +67,7 @@ findMatchesFuzzy lines startingLineNum fuzzyLevel fuzzyStr = foldr (\(text, idx)
   findMatchesFuzzy' text idx (bitap text k m (newPatternMask text fuzzyStr) (newR k)) y) 
   [] (zip lines [startingLineNum .. (startingLineNum + length lines)])
     where findMatchesFuzzy' _ _ Nothing y = y
-          findMatchesFuzzy' text idx (Just str) y = Match text str idx:y
+          findMatchesFuzzy' text idx (Just (str, matchIdx)) y = Match text str matchIdx idx:y
           k = editDistance fuzzyLevel
           m = length fuzzyStr
 
@@ -72,7 +84,7 @@ findMatchesFuzzy lines startingLineNum fuzzyLevel fuzzyStr = foldr (\(text, idx)
   https://github.com/Wikinaut/agrep/tree/master/docs
 
 -}
-bitap :: String -> Int -> Int -> IntMap Int64 -> [Int64] -> Maybe String
+bitap :: String -> Int -> Int -> IntMap Int64 -> [Int64] -> Maybe (String, Int)
 bitap text k m patternMask r = bitap' text k m patternMask r 0
   where bitap' [] _ _ _ _ _ = Nothing
         bitap' (h:t) k m patternMask r idx = do
@@ -80,7 +92,7 @@ bitap text k m patternMask r = bitap' text k m patternMask r 0
           let x = (oldR .|. IntMap.findWithDefault 0 (ord h) patternMask) `shiftL` 1
           let newR = x:substitute h oldR (tail r) patternMask
           if isMatch newR k m
-            then Just (take m (drop (idx - m + 1) text))
+            then Just (take m (drop (idx - m + 1) text), idx-m+1)
             else bitap' t k m patternMask newR (idx+1)
 
 {-
