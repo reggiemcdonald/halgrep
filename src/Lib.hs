@@ -18,8 +18,8 @@ instance Show FileMatch where
   show (FileMatch name matches) = name ++ ":\n" ++ foldr (\x y -> ("\t" ++ show x ++ "\n") ++ y) "" matches
 
 run :: Command -> IO ()
-run (Command (Opts c fz) (Args p fs)) = do
-  files <- sequence (map File.extractFile fs)
+run (Command (Opts c fz r) (Args p fs)) = do
+  files <- sequence (map (`File.dispatchFileExtraction` r) fs)
   let patt = p
       fileMatches = filter (\(FileMatch path matches) -> not (null matches))
         (map (\x -> exFileToMatch x (toFuzzy fz) patt) (concat files))

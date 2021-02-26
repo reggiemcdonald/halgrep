@@ -33,7 +33,7 @@ library:
   source-dirs: src
 
 executables:
-  halgrep-exe:
+  halgrep:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

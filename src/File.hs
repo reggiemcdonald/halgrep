@@ -2,14 +2,13 @@
 
 module File (
   ExFile(..),
-  extractFile,
-  extractFilesRecursive
+  dispatchFileExtraction,
             )where
 
 import Control.Exception (catch, IOException)
 import Text.Regex.PCRE ((=~))
 import Control.Monad (forM, filterM)
-import System.IO (hGetContents, IOMode(ReadMode), openFile, latin1, hSetEncoding)
+import System.IO (hGetContents, IOMode(ReadMode), openFile, latin1, hSetEncoding, hClose)
 import System.Posix.Files (getFileStatus, isDirectory)
 import System.Directory (doesDirectoryExist, doesFileExist, listDirectory)
 
@@ -28,6 +27,19 @@ data ExFile = ExFile {
   } deriving Show
 
 dotfileRegEx = "^\\/?(?:\\w+\\/)*(\\.\\w+)" :: String
+
+{-|
+    @brief Given a filepath and a recursive flag, dispatches
+    the correct file finder.
+    @throws IOException if file/dir does not exist
+    @param filepath String
+    @param recursive Bool
+    @returns list of files and their contents
+-}
+dispatchFileExtraction :: FilePath -> Bool -> IO [ExFile]
+dispatchFileExtraction filepath recursive
+  | recursive = extractFilesRecursive filepath
+  | otherwise = extractFile filepath
 
 {-|
     @brief Given a filepath it will extract the contents of
@@ -58,6 +70,9 @@ _extractFile filepath = do
   handler <- openFile filepath ReadMode
   hSetEncoding handler latin1
   contents <- hGetContents handler
+  -- Forcing strict evaluation from 
+  --   https://stackoverflow.com/questions/296792/haskell-io-and-closing-files
+  reduceToNormal contents `seq` hClose handler
   let exfile = ExFile{
         filepath = filepath,
         contents = (lines contents)
@@ -146,3 +161,13 @@ _extractPaths filepath = do
         if last filepath == '/' then map (filepath ++) contents
         else map ((filepath ++ "/") ++) contents
   return fullpaths
+
+{-| 
+    @brief Traverses the given list. This forces reading on lazy IO.
+    See here https://stackoverflow.com/questions/296792/haskell-io-and-closing-files for more information.
+    @param list
+    @returns empty tuple
+-}
+reduceToNormal :: [a] -> ()
+reduceToNormal [] = ()
+reduceToNormal (_:t) = reduceToNormal t
