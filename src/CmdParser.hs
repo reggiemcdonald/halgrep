@@ -9,8 +9,9 @@ module CmdParser (
 import Options.Applicative
 
 data Opts = Opts
-  { optContext :: Int
-  , optFuzzy   :: String }
+  { optContext   :: Int
+  , optFuzzy     :: String 
+  , optRecursive :: Bool }
 
 context :: Parser Int
 context = option auto
@@ -28,9 +29,13 @@ fuzzy = strOption
   <> value "NONE"
   <> help "Desired LEVEL of fuzziness: NONE, LOW, MED, HIGH")
 
+recursive :: Parser Bool
+recursive = switch ( long "recursive"
+  <> short 'r'
+  <> help "Recursively search subdirectories")
 
 opts :: Parser Opts
-opts = Opts <$> context <*> fuzzy
+opts = Opts <$> context <*> fuzzy <*> recursive
 
 data Args = Args
   { argPattern :: String

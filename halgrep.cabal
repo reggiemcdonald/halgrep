@@ -22,6 +22,7 @@ source-repository head
 
 library
   exposed-modules:
+      CmdParser
       File
       Lib
       Matching
@@ -41,7 +42,7 @@ library
     , unix
   default-language: Haskell2010
 
-executable halgrep-exe
+executable halgrep
   main-is: Main.hs
   other-modules:
       Paths_halgrep
