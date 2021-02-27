@@ -45,8 +45,8 @@ instance Show Fuzziness where
   show MediumFuzzy = "Fuzzy: Med(" ++ show (editDistance MediumFuzzy) ++ ")"
   show HighFuzzy = "Fuzzy: High(" ++ show (editDistance HighFuzzy) ++ ")"
 
-getLineParts :: Match -> (String, String, String, Int)
-getLineParts (Match line matchedPattern idx ln) = (take idx line, matchedPattern, drop (idx + length matchedPattern) line, ln)
+getLineParts :: Match -> (String, String, String)
+getLineParts (Match line matchedPattern idx _) = (take idx line, matchedPattern, drop (idx + length matchedPattern) line)
 
 -- | Dispatches the correct matching function according to the specified fuzzy level
 dispatchMatching :: [String] -> Int -> Fuzziness -> String -> [Match]
