@@ -20,7 +20,7 @@ spec = do
     -- End of test data
 
     it "should find a single match when given a single matching line" $
-      findMatches singleString 1 regexStart `shouldBe` [Match (head singleString) "This" 1]
+      findMatches singleString 1 regexStart `shouldBe` [Match (head singleString) "This" 0 1]
     
     it "should find no match when given an empty list" $
       findMatches [] 1 "" `shouldBe` []
@@ -29,16 +29,16 @@ spec = do
     it ("should find multiple matches with " ++ regexStart) $
       findMatches multipleString 10 regexStart `shouldBe` 
         [
-          Match (head multipleString) "This" 10,
-          Match (multipleString !! 3) "This" 13
+          Match (head multipleString) "This" 0 10,
+          Match (multipleString !! 3) "This" 0 13
         ]
 
     it ("should find multiple matches with " ++ regexEnd) $
       findMatches multipleString 10 regexEnd `shouldBe` 
         [
-          Match (head multipleString) "string" 10,
-          Match (multipleString !! 1) "string" 11, 
-          Match (multipleString !! 2) "string" 12
+          Match (head multipleString) "string" 19 10,
+          Match (multipleString !! 1) "string" 15 11, 
+          Match (multipleString !! 2) "string" 24 12
         ]
 
   describe "newR" $
@@ -78,7 +78,7 @@ spec = do
         Match
       -}
       let fuzzyPattern = "tridpctyla"
-      findMatchesFuzzy wildStrings 0 LowFuzzy fuzzyPattern `shouldBe` [Match (wildStrings !! 2) "tridactyla" 2]
+      findMatchesFuzzy wildStrings 0 LowFuzzy fuzzyPattern `shouldBe` [Match (wildStrings !! 2) "tridactyla" 51 2]
 
     it "should find multiple matches when a match exists" $ do
       let fuzzyPattern = "if"
@@ -90,9 +90,9 @@ spec = do
             String 3: The first occurrence is in "species", more specifically the "ie".
         -}
         [
-          Match (head wildStrings) "in" 0,
-          Match (wildStrings !! 1) "ik" 1,
-          Match (wildStrings !! 2) "ie" 2
+          Match (head wildStrings) "in" 17 0,
+          Match (wildStrings !! 1) "ik" 1 1,
+          Match (wildStrings !! 2) "ie" 11 2
         ]
 
     it "should not match with low fuzz" $ do
@@ -112,7 +112,7 @@ spec = do
         Edit: replace 'e' with 'o' => Myrmecophaga (2 edits)
         Match
       -}
-      findMatchesFuzzy wildStrings 0 MediumFuzzy  fuzzyPattern `shouldBe` [Match (last wildStrings) "Myrmecophaga" 2]
+      findMatchesFuzzy wildStrings 0 MediumFuzzy  fuzzyPattern `shouldBe` [Match (last wildStrings) "Myrmecophaga" 38 2]
     
     it "should handle deletion of characters" $ do
       let fuzzyPattern = "Pkas"
@@ -124,7 +124,7 @@ spec = do
           Edit: replace 'i' with 'P' => Pkas (1 edit)
           Match
       -}
-      findMatchesFuzzy wildStrings 0 LowFuzzy fuzzyPattern `shouldContain` [Match (wildStrings !! 1) "ikas" 1]
+      findMatchesFuzzy wildStrings 0 LowFuzzy fuzzyPattern `shouldContain` [Match (wildStrings !! 1) "ikas" 1 1]
 
     it "should be able to fuzzy search bigger text files" $ do
       f <- readFile "test/random_text.txt"

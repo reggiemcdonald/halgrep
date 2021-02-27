@@ -1,10 +1,8 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.3.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: fb5c279239e433a49282236807e530af2e5f6b50f3a9e54ca9648d2730ac5b41
 
 name:           halgrep
 version:        0.1.0.0
@@ -24,6 +22,7 @@ source-repository head
 
 library
   exposed-modules:
+      CmdParser
       File
       Lib
       Matching
@@ -32,17 +31,18 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
-    , optparse-applicative
+      ansi-terminal
+    , base >=4.7 && <5
     , bits
     , containers
     , directory
+    , optparse-applicative
     , regex-pcre
     , regex-tdfa
     , unix
   default-language: Haskell2010
 
-executable halgrep-exe
+executable halgrep
   main-is: Main.hs
   other-modules:
       Paths_halgrep
@@ -50,7 +50,8 @@ executable halgrep-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal
+    , base >=4.7 && <5
     , bits
     , containers
     , directory
@@ -72,14 +73,15 @@ test-suite halgrep-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal
+    , base >=4.7 && <5
     , bits
     , containers
     , directory
     , halgrep
-    , optparse-applicative
     , hspec >=2.0.0
     , hspec-expectations-lifted
+    , optparse-applicative
     , regex-pcre
     , regex-tdfa
     , unix
