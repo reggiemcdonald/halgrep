@@ -36,11 +36,9 @@ recursive = switch ( long "recursive"
   <> help "Recursively search subdirectories")
 
 numlines :: Parser Bool
-numlines = option auto
+numlines = switch
   (  long "line-numbers"
    <> short 'n'
-   <> metavar "Bool"
-   <> value False
    <> help "Print the line numbers of each match: True, [False]" )
 
 opts :: Parser Opts
