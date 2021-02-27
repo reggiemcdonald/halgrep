@@ -11,7 +11,8 @@ import Options.Applicative
 data Opts = Opts
   { optContext   :: Int
   , optFuzzy     :: String 
-  , optRecursive :: Bool }
+  , optRecursive :: Bool
+  , optNumlines :: Bool }
 
 context :: Parser Int
 context = option auto
@@ -34,8 +35,16 @@ recursive = switch ( long "recursive"
   <> short 'r'
   <> help "Recursively search subdirectories")
 
+numlines :: Parser Bool
+numlines = option auto
+  (  long "line-numbers"
+   <> short 'n'
+   <> metavar "Bool"
+   <> value False
+   <> help "Print the line numbers of each match: True, [False]" )
+
 opts :: Parser Opts
-opts = Opts <$> context <*> fuzzy <*> recursive
+opts = Opts <$> context <*> fuzzy <*> recursive <*> numlines
 
 data Args = Args
   { argPattern :: String
