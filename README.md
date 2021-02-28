@@ -7,6 +7,12 @@ stack build
 stack run
 ```
 
+### To install the binary:
+```bash
+stack install
+halgrep --help
+```
+
 ### To run interactive:
 ```bash
 stack ghci
@@ -23,43 +29,44 @@ HALGREP(1) Version 0.1 | CPSC312 Project 1 | HALGREP(1)
 NAME
 ====
 
-**halgrep** -- Full-text search utility
+**halgrep** -- a text search utility
 
 SYNOPSIS
 ========
 
-| **halgrep** \[**-hl**] \[**-c**\[Num]] \[**--context-lines**\[=Num]] [pattern] [file ...]
+| **halgrep** \[**-c** | **--context-lines** NUM] [**-f** | **--fuzzy** LEVEL] [**-r** | **--recursive**] [**-n** | **--line-numbers**] PATTERN FILES ...
 
 
 DESCRIPTION
 ===========
 
-Performs a search for the specified pattern in the given files. In general, a match is one where a regular expression is found in the input text. 
+Performs a search for the specified pattern in the given files. 
 
-Options
+Available Options
 -------
 
--h, --help
+-c, --context-lines NUM
 
-:   Prints brief usage information.
+: Print NUM lines of context preceding and following each matched line.
 
+-f, --fuzzy LEVEL
 
--c[num, --context-lines=num]
+: Desired level of fuzziness: NONE, LOW, MED, HIGH.
 
-:   Print num lines preceding and following each matched line.
+-r, --recursive
 
---fuzzy=num
+: Recursively search subdirectories.
 
-:   TBD.
+-n, --line-numbers
 
-Exit Status
------------
+: Print the line numbers of each match.
 
-The halgrep utility exits with one of the following values:
-| Exit Code | Meaning |
-| :-------: | :-----: |
-| 0 | Matches found. |
-| 1 | No matches found. |
-| Otherwise | Error. |
+PATTERN
+
+: Pattern to search for.
+
+FILES
+
+: Files to search.
 
 *Markdown manual page template from https://gist.github.com/eddieantonio/55752dd76a003fefb562*
